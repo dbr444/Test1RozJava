@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "query": {
+    "from": "EUR",
+    "to": "USD",
+    "amount": 50
+  },
+  "info": {
+    "rate": 1.135971
+  },
+  "result": 56.79855
+}
