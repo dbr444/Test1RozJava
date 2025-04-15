@@ -18,15 +18,21 @@ public class CurrencyService implements ICurrencyService {
         validateCurrencyInputs(currencyFrom, currencyTo, amount);
 
         Cache.CachedRate cached = Cache.getCachedRate(currencyFrom, currencyTo);
-
         if (cached != null && !cached.isExpired()) {
             return amount.multiply(cached.getRate());
         }
 
-        RateAndResultWrapper rateAndResultWrapper = rateService.fetchExchangeResultFromApi(currencyFrom, currencyTo, amount);
+        String key = (currencyFrom + ":" + currencyTo).intern();
 
-        Cache.putRateInCache(currencyFrom, currencyTo, rateAndResultWrapper.getRate(), AppConfig.CACHE_EXPIRATION_SECONDS);
+        synchronized (key) {
+            cached = Cache.getCachedRate(currencyFrom, currencyTo);
+            if (cached != null && !cached.isExpired()) {
+                return amount.multiply(cached.getRate());
+            }
 
-        return rateAndResultWrapper.getResult();
+            RateAndResultWrapper wrapper = rateService.fetchExchangeResultFromApi(currencyFrom, currencyTo, amount);
+            Cache.putRateInCache(currencyFrom, currencyTo, wrapper.getRate(), AppConfig.CACHE_EXPIRATION_SECONDS);
+            return wrapper.getResult();
+        }
     }
 }

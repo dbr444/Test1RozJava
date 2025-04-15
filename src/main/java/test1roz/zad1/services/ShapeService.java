@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class ShapeService {
@@ -63,7 +64,7 @@ public class ShapeService {
 
     private void validateShapeList(List<Shape> shapes) {
         Optional.ofNullable(shapes)
-                .filter(list -> !list.isEmpty() && !list.contains(null))
+                .filter(list -> !list.isEmpty() && list.stream().noneMatch(Objects::isNull))
                 .orElseThrow(() -> new InvalidListOrElementException("The list is null, empty or an element is null."));
     }
 

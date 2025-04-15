@@ -8,7 +8,6 @@ import test1roz.zad1.services.ShapeService;
 import test1roz.zad1.util.ObjectMapperHolder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class ShapeRunner {
     public static void main(String[] args) {

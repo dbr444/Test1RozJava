@@ -1,10 +1,15 @@
 package test1roz.zad1.shapes;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import test1roz.zad1.models.Shape;
 import test1roz.zad1.models.ShapeType;
 
 import java.util.Objects;
-
+@JsonTypeName("rectangle")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public final class Rectangle implements Shape {
 
     private final double width;
@@ -26,6 +31,13 @@ public final class Rectangle implements Shape {
 
     static Rectangle createRectangle(double width, double height) {
         return new Rectangle(width, height);
+    }
+
+    @JsonCreator
+    static Rectangle createForDeserialization(
+            @JsonProperty("width") double width,
+            @JsonProperty("height") double height) {
+        return ShapeFactory.getInstance().createRectangle(width, height);
     }
 
     @Override

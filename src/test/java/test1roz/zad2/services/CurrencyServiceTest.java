@@ -73,6 +73,24 @@ public class CurrencyServiceTest {
         verify(rateServiceMock, times(2)).fetchExchangeResultFromApi(currencyEur, currencyUsd, amount);
     }
 
+    @Test
+    public void shouldNotCallApiMultipleTimesInParallel() throws InterruptedException {
+        Cache.clearCache();
+        BigDecimal amount = new BigDecimal("100");
+        RateAndResultWrapper expectedResult = new RateAndResultWrapper(new BigDecimal("2.0"), new BigDecimal("200.0"));
+        when(rateServiceMock.fetchExchangeResultFromApi(currencyEur, currencyUsd, amount)).thenReturn(expectedResult);
+
+        Runnable task = () -> currencyService.exchange("EUR", "USD", amount);
+
+        Thread t1 = new Thread(task);
+        Thread t2 = new Thread(task);
+        t1.start();
+        t2.start();
+        t1.join();
+        t2.join();
+
+        verify(rateServiceMock, times(1)).fetchExchangeResultFromApi("EUR", "USD", amount);
+    }
 
     @Test
     public void shouldThrowExceptionForInvalidParameters() {

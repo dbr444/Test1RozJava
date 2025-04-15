@@ -1,14 +1,18 @@
 package test1roz.zad1.shapes;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import test1roz.zad1.models.Shape;
 import test1roz.zad1.models.ShapeType;
 
 import java.util.Objects;
-
+@JsonTypeName("square")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public final class Square implements Shape {
 
     private final double side;
-    private final ShapeType type = ShapeType.SQUARE;
 
     private Square(double side) {
         this.side = side;
@@ -20,6 +24,11 @@ public final class Square implements Shape {
 
     static Square createSquare(double side) {
         return new Square(side);
+    }
+
+    @JsonCreator
+    static Square createForDeserialization(@JsonProperty("side") double side) {
+        return ShapeFactory.getInstance().createSquare(side);
     }
 
     @Override
@@ -34,7 +43,7 @@ public final class Square implements Shape {
 
     @Override
     public ShapeType getType() {
-        return type;
+        return ShapeType.SQUARE;
     }
 
     @Override
