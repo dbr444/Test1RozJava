@@ -1,5 +1,7 @@
 package test1roz.zad2.services;
 
+import static test1roz.zad2.util.KeyUtils.currencyKey;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,12 +11,12 @@ public class Cache {
     private static final ConcurrentHashMap<String, CachedRate> cache = new ConcurrentHashMap<>();
 
     public static CachedRate getCachedRate(String currencyFrom, String currencyTo) {
-        String cacheKey = currencyFrom + ":" + currencyTo;
+        String cacheKey = currencyKey(currencyFrom, currencyTo);
         return cache.get(cacheKey);
     }
 
     public static void putRateInCache(String currencyFrom, String currencyTo, BigDecimal rate, long ttlInSeconds) {
-        String cacheKey = currencyFrom + ":" + currencyTo;
+        String cacheKey = currencyKey(currencyFrom, currencyTo);
         cache.put(cacheKey, new CachedRate(rate, Instant.now().plusSeconds(ttlInSeconds)));
     }
 
