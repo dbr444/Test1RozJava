@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CurrencyService implements ICurrencyService {
 
     private final IRateService rateService;
-    private static final ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, BigDecimal> locks = new ConcurrentHashMap<>();
 
     public CurrencyService(IRateService rateService) {
         this.rateService = rateService;
@@ -23,22 +23,16 @@ public class CurrencyService implements ICurrencyService {
         validateCurrencyInputs(currencyFrom, currencyTo, amount);
 
         String key = currencyKey(currencyFrom, currencyTo);
-        Cache.CachedRate cached = Cache.getCachedRate(currencyFrom, currencyTo);
 
-        if (isCacheValid(cached)) {
-            return amount.multiply(cached.getRate());
-        }
+        return locks.compute(key, (k, v) -> {
+            Cache.CachedRate cached = Cache.getCachedRate(currencyFrom, currencyTo);
 
-        Object lock = locks.computeIfAbsent(key, k -> new Object());
-
-        synchronized (lock) {
-            cached = Cache.getCachedRate(currencyFrom, currencyTo);
             if (isCacheValid(cached)) {
                 return amount.multiply(cached.getRate());
             }
 
             return fetchAndCacheRateAndReturnResult(currencyFrom, currencyTo, amount);
-        }
+        });
     }
 
     private boolean isCacheValid(Cache.CachedRate cached) {
